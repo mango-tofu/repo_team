@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.wl.core.dao.SysRoleMapper" >
+  <resultMap id="BaseResultMap" type="com.wl.core.model.SysRole" >
+    <id column="id" property="id" jdbcType="VARCHAR" />
+    <result column="name" property="name" jdbcType="VARCHAR" />
+    <result column="available" property="available" jdbcType="CHAR" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, name, available
+  </sql>
+  
+  
+  
+ <select id="findALL" resultMap="BaseResultMap" parameterType="com.wl.core.model.SysRole" >
+	    select 
+	    	<include refid="Base_Column_List" />
+	    from sys_role order by id desc limit #{firstRow},#{lastRow}
+  </select>
+  <select id="findCount" resultType="int" parameterType="com.wl.core.model.SysRole" >
+	    select  count(1) from sys_role
+  </select>
+  
+  
+  
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.String" >
+    select 
+    <include refid="Base_Column_List" />
+    from sys_role
+    where id = #{id,jdbcType=VARCHAR}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String" >
+    delete from sys_role
+    where id = #{id,jdbcType=VARCHAR}
+  </delete>
+  <insert id="insert" parameterType="com.wl.core.model.SysRole" >
+    insert into sys_role (id, name, available
+      )
+    values (#{id,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, #{available,jdbcType=CHAR}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.wl.core.model.SysRole" >
+    insert into sys_role
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="name != null" >
+        name,
+      </if>
+      <if test="available != null" >
+        available,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=VARCHAR},
+      </if>
+      <if test="name != null" >
+        #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="available != null" >
+        #{available,jdbcType=CHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.wl.core.model.SysRole" >
+    update sys_role
+    <set >
+      <if test="name != null" >
+        name = #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="available != null" >
+        available = #{available,jdbcType=CHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.wl.core.model.SysRole" >
+    update sys_role
+    set name = #{name,jdbcType=VARCHAR},
+      available = #{available,jdbcType=CHAR}
+    where id = #{id,jdbcType=VARCHAR}
+  </update>
+  
+  <select id="getRolePermissionJson" resultType="com.wl.core.model.entity.MenuTree" >
+     SELECT
+		t.id AS id,
+		CASE WHEN t.parentid = '0' THEN '' ELSE 	t.parentid END AS pid,
+	 t.`name` AS text,
+	 t.state AS state
+	FROM
+		sys_permission t
+  </select>
+  
+   <select id="getUserRole" resultType="com.wl.core.model.SysRole" parameterType="java.lang.String" >
+	 select t1.id,t1.name,CASE when t2.id is not null THEN true else false end as ck 
+	 from sys_role t1 LEFT JOIN  
+		( select id,name from sys_role where id in (
+				select sys_role_id from sys_user_role where sys_user_id=#{0}
+			)
+		) t2 on t1.id=t2.id
+  </select>
+
+</mapper>
